@@ -4,9 +4,12 @@ from astromodels import Uniform_prior, Cosine_Prior
 import collections
 
 
+
+_allowed_coords = ['C', 'G']
+
 class HEALPixMapLike(PluginPrototype):
 
-    def __init__(self, name, healpix_map):
+    def __init__(self, name, healpix_map, coord='C'):
         """
         A plugin for healpix probability maps. Allows for joint fitting 
         of positions on the sky. Coordinate system is assumed to be Celestial.
@@ -14,11 +17,17 @@ class HEALPixMapLike(PluginPrototype):
 
         :param name: plugin name
         :param healpix_map: a healpix map array
+        :param coord: the coordinate system of the map: G or C
         :returns: 
         :rtype: 
 
         """
 
+
+        assert coord.upper() in _allowed_coords, 'coord must be G or C'
+
+        self._coord = coord.upper()
+        
         self._map = healpix_map
 
         # the map should be filled with probabilities
@@ -58,18 +67,28 @@ class HEALPixMapLike(PluginPrototype):
     def get_log_like(self):
 
         # assume only one point source
-        org = 0.
-        # get the ra, dec from the model
-        ra, dec = self._likelihood_model.get_point_source_position(0)
 
-        # healpix has normal coordinates, so fix ours
-        x = np.remainder(ra + 360 - org, 360)
-        if x > 180.:
-            x -= 360
-        x = -x
+
+        if self._coord == 'C':
+        
+            org = 0.
+            # get the ra, dec from the model
+            ra, dec = self._likelihood_model.get_point_source_position(0)
+
+            y = dec
+            # healpix has normal coordinates, so fix ours
+            x = np.remainder(ra + 360 - org, 360)
+            if x > 180.:
+                x -= 360
+            x = -x
+
+        else:
+
+            ## add here getting the l,b
+            pass
 
         # 
-        return hp.get_interp_val(self._log_map, x, dec, lonlat=True)
+        return hp.get_interp_val(self._log_map, x, y, lonlat=True)
 
     def inner_fit(self):
 
