@@ -95,7 +95,7 @@ class HEALPixMapLike(PluginPrototype):
         return self.get_log_like()
 
     @classmethod
-    def from_healpix_file(cls, name, filename, **kwargs):
+    def from_healpix_file(cls, name, filename, coord='C', **kwargs):
         """
         Construct a HEALPixMapLike from a file name
 
@@ -109,4 +109,4 @@ class HEALPixMapLike(PluginPrototype):
 
         hp_map = hp.read_map(filename, **kwargs)
 
-        return cls(name, hp_map)
+        return cls(name=name, healpix_map=hp_map, coord=coord)
