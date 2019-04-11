@@ -1,11 +1,12 @@
 import healpy as hp
+import collections
+import numpy as np
+
 from threeML.plugin_prototype import PluginPrototype
 from astromodels import Uniform_prior, Cosine_Prior
-import collections
-
-
 
 _allowed_coords = ['C', 'G']
+
 
 class HEALPixMapLike(PluginPrototype):
 
@@ -23,11 +24,10 @@ class HEALPixMapLike(PluginPrototype):
 
         """
 
-
         assert coord.upper() in _allowed_coords, 'coord must be G or C'
 
         self._coord = coord.upper()
-        
+
         self._map = healpix_map
 
         # the map should be filled with probabilities
@@ -68,9 +68,8 @@ class HEALPixMapLike(PluginPrototype):
 
         # assume only one point source
 
-
         if self._coord == 'C':
-        
+
             org = 0.
             # get the ra, dec from the model
             ra, dec = self._likelihood_model.get_point_source_position(0)
@@ -105,8 +104,7 @@ class HEALPixMapLike(PluginPrototype):
         :rtype: 
 
         """
-        
 
         hp_map = hp.read_map(filename, **kwargs)
 
-        return cls(name=name, healpix_map=hp_map, coord=coord)
+        return cls(name, hp_map, coord=coord)
